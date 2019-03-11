@@ -1,30 +1,73 @@
 const fs = require('fs');
-
-const storeNotes = notes => {
-    const notesJson = JSON.stringify(notes);
-    fs.writeFileSync('Notes.json',notesJson);
-}
+const chalk = require('chalk');
 
 const addNote = (title,body) => {
-    const notes = loadNotes()
+    const notes = loadNote();
+    
+    const duplicateNote = notes.find(note => note.title === title);
 
-    notes.push({title,body})
+    if(!duplicateNote){
+        notes.push({
+            title:title,
+            body:body
+        });
+        storeNote(notes);
+        console.log('New Note Added');
+    } else{
+        console.log('Title taken')
+    }
 
-    //write a json file and store the value
-    storeNotes(notes)
+
 }
 
-const loadNotes = () => { //Loading from json file
+const loadNote = () => {
     try{
-        const notesJson = fs.readFileSync('./Notes.json').toString();
-        return JSON.parse(notesJson);
+        const dataJson = fs.readFileSync('./notes.json').toString();
+        return JSON.parse(dataJson);    
     }
     catch(err){
-        return []
+        return [];
     }
 }
 
+const storeNote = notes => {
+    const dataJson = JSON.stringify(notes);
+    fs.writeFileSync('notes.json',dataJson);
+}
+
+const removeNote = title => {
+    const notes = loadNote();
+    const notesToKeep = notes.filter(note => note.title !== title);
+    if(notesToKeep.length === notes.length){
+        console.log(chalk.bgRed('No Note Found'));
+    }else if(notesToKeep.length < notes.length){
+        console.log(chalk.bgGreen('Note removed'));
+    }
+
+    storeNote(notesToKeep);
+}   
+
+const listNote = () => {
+    const notes = loadNote();
+    console.log(chalk.green('==========================='));
+    notes.forEach(el => console.log(`${el.title.toUpperCase()} - ${el.body}`));
+    console.log(chalk.green('==========================='));
+}
+
+const readNote = (title) => {
+    const notes = loadNote();
+    const note = notes.find(note => note.title === title);
+
+    if(note){
+        console.log(chalk.bgGreen(note.title.toUpperCase()),note.body);
+    }else {
+        console.log(chalk.bgRed('No note Found'))
+    }
+}
 
 module.exports = {
-    addNote: addNote
+    addNote: addNote,
+    removeNote: removeNote,
+    listNote:listNote,
+    readNote:readNote
 }

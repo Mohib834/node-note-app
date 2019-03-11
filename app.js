@@ -1,7 +1,7 @@
 // argv === argument value  
 
-const yargs = require('yargs')
-const noteArr = [];
+const yargs = require('yargs');
+const note = require('./notes');
 //Customise the version
 yargs.version('1.1.0');
 
@@ -22,7 +22,7 @@ yargs.command({
         }
     },
     handler(argv){ //This handler parameter is about the argv itself
-        noteArr.push(argv.title);
+        note.addNote(argv.title,argv.body);
     }
 });
 
@@ -30,8 +30,15 @@ yargs.command({
 yargs.command({
     command:'remove',
     describe:'Remove a note',
-    handle(){
-        console.log('Removing a note');
+    builder:{
+        title:{
+            describe:'Note title',
+            demandOption:true,
+            type:'string'
+        }
+    },
+    handler(argv){
+        note.removeNote(argv.title);
     }
 })
 
@@ -39,8 +46,8 @@ yargs.command({
 yargs.command({
     command:'list',
     describe:'List the notes',
-    handler(){
-        console.log('listing the notes');
+    handler(argv){
+        note.listNote();
     }
 })
 
@@ -48,8 +55,15 @@ yargs.command({
 yargs.command({
     command:'read',
     describe:'Read the notes',
-    handler(){
-        console.log('reading the notes');
+    builder:{
+        title:{
+            describe:'Note Title',
+            demandOption:true,
+            type:'string'
+        }
+    },
+    handler(argv){
+        note.readNote(argv.title);
     }
 })
 
